@@ -1,9 +1,5 @@
 /*
 * Simple Text Editor using java GUI
-* Following Features are only on the UI, still to do:
-* Save file
-* Open existing file
-* Close File
 *
 * Future Features:
 * Choose user's language
@@ -13,16 +9,23 @@
 *
 * please contact me via the contact info in my GitHub profile (AugustoMF) in case of need
 *
-* last modification 21st October 2023, 14:24
+* last modification 22nd October 2023, 12:09
 */
 
 // Adding all the necessary imports for the application
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.*;
 
 //The editor class, where everything happens
 public class TextEditor extends JFrame implements ActionListener {
@@ -34,6 +37,7 @@ public class TextEditor extends JFrame implements ActionListener {
     private JSpinner fontSize;
     private JButton fontColor;
     private JButton colorMode;
+    private JMenuBar menuBar;
     private JMenu menu;
     private JMenuItem openFile;
     private JMenuItem saveFile;
@@ -41,7 +45,7 @@ public class TextEditor extends JFrame implements ActionListener {
     private JComboBox fontStyle;
     private String theme = "clear";
 
-    public TextEditor(){
+    public TextEditor() throws IOException {
 
 //Giving the variables their values and types
     textArea = new JTextArea();
@@ -50,13 +54,15 @@ public class TextEditor extends JFrame implements ActionListener {
     fontSize = new JSpinner();
     fontColor = new JButton("Cor");
     colorMode = new JButton("Tema");
+    menuBar = new JMenuBar();
     menu = new JMenu("File");
     openFile = new JMenuItem("Open");
     saveFile = new JMenuItem("Save");
     exitFile = new JMenuItem("Exit");
 
-
-
+    menuBar.add(menu);
+    menuBar.setBackground(Color.WHITE);
+    menuBar.setForeground(Color.BLACK);
 
     menu.add(openFile);
     menu.add(saveFile);
@@ -121,7 +127,7 @@ public class TextEditor extends JFrame implements ActionListener {
         this.setTitle("Editor de Texto");
         this.setForeground(Color.lightGray);
         this.setVisible(true);
-        this.add(menu);
+        this.setJMenuBar(menuBar);
         this.add(topHeader);
         this.add(fontSize);
         this.add(fontColor);
@@ -129,7 +135,7 @@ public class TextEditor extends JFrame implements ActionListener {
         this.add(colorMode);
         this.add(scroller);
         this.setLocationRelativeTo(null);
-
+        this.setIconImage(ImageIO.read(new File("imgs/icon.png")));
 
     }
 
@@ -156,6 +162,8 @@ public class TextEditor extends JFrame implements ActionListener {
             if (theme.equals("clear")){
                 textArea.setForeground(Color.WHITE);
                 textArea.setBackground(Color.DARK_GRAY);
+                menuBar.setBackground(Color.BLACK);
+                menuBar.setForeground(Color.WHITE);
                 fontColor.setBackground(Color.DARK_GRAY);
                 fontColor.setForeground(Color.WHITE);
                 fontStyle.setBackground(Color.DARK_GRAY);
@@ -165,8 +173,8 @@ public class TextEditor extends JFrame implements ActionListener {
                 fontSize.getEditor().getComponent(0).setForeground(Color.WHITE);
                 fontSize.getEditor().getComponent(0).setBackground(Color.DARK_GRAY);
                 topHeader.setForeground(Color.WHITE);
-                menu.setBackground(Color.WHITE);
-                menu.setForeground(Color.BLACK);
+                menu.setBackground(Color.DARK_GRAY);
+                menu.setForeground(Color.WHITE);
                 menu.setOpaque(true);
                 openFile.setBackground(Color.DARK_GRAY);
                 openFile.setForeground(Color.WHITE);
@@ -184,6 +192,8 @@ public class TextEditor extends JFrame implements ActionListener {
             else if (theme.equals("dark")){
                 textArea.setForeground(Color.BLACK);
                 textArea.setBackground(Color.WHITE);
+                menuBar.setBackground(Color.WHITE);
+                menuBar.setForeground(Color.BLACK);
                 fontColor.setBackground(Color.WHITE);
                 fontColor.setForeground(Color.BLACK);
                 fontStyle.setBackground(Color.WHITE);
@@ -209,6 +219,65 @@ public class TextEditor extends JFrame implements ActionListener {
 
                 theme = "clear";
             }
+
         }
-    }
-}
+
+        if (e.getSource()==openFile){
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File("."));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
+                fileChooser.setFileFilter(filter);
+
+                int response = fileChooser.showOpenDialog(null);
+
+                if(response == JFileChooser.APPROVE_OPTION) {
+                    File file = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                    Scanner fileIn = null;
+
+                    try {
+                        fileIn = new Scanner(file);
+                        if(file.isFile()) {
+                            while(fileIn.hasNextLine()) {
+                                String line = fileIn.nextLine()+"\n";
+                                textArea.append(line);
+                            }
+                        }
+                    } catch (FileNotFoundException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    finally {
+                        fileIn.close();
+                    }
+                }
+            }
+
+            if (e.getSource()==saveFile){
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File("."));
+
+                int response = fileChooser.showOpenDialog(null);
+
+                if(response == JFileChooser.APPROVE_OPTION) {
+                    File file;
+                    PrintWriter fileOut = null;
+                    
+                    file = new File(fileChooser.getSelectedFile().getAbsolutePath());
+                    try {
+                     fileOut = new PrintWriter(file);
+                     fileOut.println(textArea.getText());
+                    } 
+                    catch (FileNotFoundException e1) {
+                     // TODO Auto-generated catch block
+                     e1.printStackTrace();
+                    }
+                    finally {
+                     fileOut.close();
+                    }   
+                   }
+                  }
+            if (e.getSource()==exitFile){
+             System.exit(0);
+            }
+     }
+   }
