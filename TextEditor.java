@@ -9,7 +9,7 @@
 *
 * please contact me via the contact info in my GitHub profile (AugustoMF) in case of need
 *
-* last modification 22nd October 2023, 12:09
+* last modification 23rd October 2023, 09:54
 */
 
 // Adding all the necessary imports for the application
@@ -223,6 +223,8 @@ public class TextEditor extends JFrame implements ActionListener {
         }
 
         if (e.getSource()==openFile){
+
+                textArea.setText(null);
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setCurrentDirectory(new File("."));
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
@@ -278,6 +280,6 @@ public class TextEditor extends JFrame implements ActionListener {
                   }
             if (e.getSource()==exitFile){
              System.exit(0);
-            }
+          }
      }
-   }
+ }
